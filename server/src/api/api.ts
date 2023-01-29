@@ -1,6 +1,7 @@
 import cors from "@fastify/cors";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import Fastify, { type FastifyInstance } from "fastify";
+import { OrdersService } from "../services/orders-service.type";
 import { ordersRoutes } from "./orders-routes";
 
 const fastify: FastifyInstance = Fastify({
@@ -12,6 +13,8 @@ fastify.register(cors, {
   methods: ["OPTIONS", "GET", "POST", "PUT"],
 });
 
-fastify.register(ordersRoutes, { prefix: "/api" });
+function configureApiRoutes(ordersService: OrdersService) {
+  fastify.register(ordersRoutes, { prefix: "/api", ordersService });
+}
 
-export { fastify };
+export { fastify, configureApiRoutes };

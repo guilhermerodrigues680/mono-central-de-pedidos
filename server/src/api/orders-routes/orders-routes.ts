@@ -1,18 +1,16 @@
 import { type FastifyPluginAsync } from "fastify";
 import type http from "node:http";
-import { v4 as uuidv4 } from "uuid";
-import { Order, OrderForm, OrderType } from "./orders.type";
+import { OrdersService } from "../../services/orders-service.type";
+import {
+  OrderSchema,
+  OrderFormSchema,
+  type Order,
+} from "../../models/orders.type";
+import { SSEManager } from "./sse-manager";
 
-export interface OrdersRoutesPluginOptions {}
-
-// Map para armazenar as referências aos responses SSE
-const sseResponses = new Map<
-  string,
-  http.ServerResponse<http.IncomingMessage>
->();
-
-// Map para armazenar os pedidos
-const orders = new Map<string, OrderType>();
+export interface OrdersRoutesPluginOptions {
+  ordersService: OrdersService;
+}
 
 /**
  * Encapsulates the routes
@@ -22,37 +20,27 @@ const orders = new Map<string, OrderType>();
 export const ordersRoutes: FastifyPluginAsync<
   OrdersRoutesPluginOptions
 > = async (fastify, options) => {
+  const { ordersService } = options;
+  const sseManager = new SSEManager();
+
   fastify.get("/orders", {}, async (request, reply) => {
     return reply;
   });
 
-  fastify.post<{ Body: OrderType; Reply: OrderType }>(
+  fastify.post<{ Body: Order; Reply: Order }>(
     "/orders",
     {
       schema: {
-        body: OrderForm,
+        body: OrderFormSchema,
         response: {
-          201: Order,
+          201: OrderSchema,
         },
       },
     },
     async (request, reply) => {
-      const order: OrderType = {
-        id: uuidv4(),
-        description: request.body.description,
-        status: "CREATED",
-      };
-      orders.set(order.id, order);
+      const order = await ordersService.createOrder(request.body);
 
-      // Enviando o evento de novo pedido aos clientes SSE
-      sseResponses.forEach((sseR) => {
-        sseR.write(
-          `event: new-order\ndata: ${JSON.stringify(order)}\n\n`,
-          (err) => {
-            console.debug("sseR.write callback", err);
-          }
-        );
-      });
+      sseManager.broadcastMessage(order);
 
       reply
         .code(201)
@@ -62,33 +50,8 @@ export const ordersRoutes: FastifyPluginAsync<
   );
 
   fastify.get("/sse/orders-stream", async (request, reply) => {
-    const headers = {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      Connection: "keep-alive",
-    };
-    reply.raw.writeHead(200, headers);
-
     const clientId = request.id;
-    sseResponses.set(clientId, reply.raw);
-
-    // Enviando um evento inicial para o cliente
-    reply.raw.write("event: connected\ndata: Connection established\n\n");
-
-    reply.raw.on("close", () => {
-      console.log(`${clientId} Connection closed`);
-      sseResponses.delete(clientId);
-    });
-
+    sseManager.incomingMessageToSSE(clientId, reply.raw);
     return reply;
   });
-
-  (async () => {
-    let c = 0;
-    setInterval(() => {
-      sseResponses.forEach((sseR) => {
-        sseR.write(`: ${c++}\n\n`);
-      });
-    }, 2000);
-  })();
 };

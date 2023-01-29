@@ -1,1 +1,1 @@
-export { fastify } from "./api";
+export { fastify, configureApiRoutes } from "./api";

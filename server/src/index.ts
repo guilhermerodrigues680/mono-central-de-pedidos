@@ -1,14 +1,18 @@
-import { fastify as api } from "./api";
+import { fastify, configureApiRoutes } from "./api";
+import OrdersServiceImpl from "./services/orders-service";
 
 async function start() {
   try {
-    await api.listen({ port: 3000 });
+    const ordersService = new OrdersServiceImpl();
 
-    const address = api.server.address();
+    configureApiRoutes(ordersService);
+
+    await fastify.listen({ port: 3000 });
+    const address = fastify.server.address();
     const port = typeof address === "string" ? address : address?.port;
-    api.log.info({ port });
+    fastify.log.info({ port });
   } catch (err) {
-    api.log.error(err);
+    fastify.log.error(err);
     process.exit(1);
   }
 }
