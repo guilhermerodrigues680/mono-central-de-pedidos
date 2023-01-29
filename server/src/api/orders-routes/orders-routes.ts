@@ -1,7 +1,7 @@
 import { type FastifyPluginAsync } from "fastify";
 import type http from "node:http";
 import { v4 as uuidv4 } from "uuid";
-import { Order, OrderForm, OrderType } from "./api.types";
+import { Order, OrderForm, OrderType } from "./orders.types";
 
 export interface OrdersRoutesPluginOptions {}
 

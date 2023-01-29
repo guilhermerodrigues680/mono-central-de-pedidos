@@ -1,7 +1,7 @@
 import cors from "@fastify/cors";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import Fastify, { type FastifyInstance } from "fastify";
-import { ordersRoutes } from "./orders-route";
+import { ordersRoutes } from "./orders-routes";
 
 const fastify: FastifyInstance = Fastify({
   logger: true,
