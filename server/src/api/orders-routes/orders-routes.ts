@@ -1,5 +1,4 @@
 import { type FastifyPluginAsync } from "fastify";
-import type http from "node:http";
 import { OrdersService } from "../../services/orders-service.type";
 import {
   OrderSchema,
@@ -21,7 +20,9 @@ export const ordersRoutes: FastifyPluginAsync<
   OrdersRoutesPluginOptions
 > = async (fastify, options) => {
   const { ordersService } = options;
-  const sseManager = new SSEManager();
+  const sseManager = new SSEManager(
+    fastify.log.child({ module: "SSEManager" })
+  );
 
   fastify.get("/orders", {}, async (request, reply) => {
     return reply;

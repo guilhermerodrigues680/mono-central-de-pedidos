@@ -1,12 +1,15 @@
 import { type IncomingMessage, type ServerResponse } from "node:http";
+import type pino from "pino";
 
 export class SSEManager {
   private readonly _connections = new Map<
     string,
     ServerResponse<IncomingMessage>
   >();
+  private readonly _log: pino.BaseLogger;
 
-  constructor() {
+  constructor(log: pino.BaseLogger) {
+    this._log = log;
     this.startPingConnectionsRoutine();
   }
 
@@ -18,16 +21,20 @@ export class SSEManager {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
       Connection: "keep-alive",
+
+      // CORS
+      "Access-Control-Allow-Origin": "*",
     };
     res.writeHead(200, headers);
 
     this._connections.set(clientId, res);
+    this._log.info({ clientId }, "Connection open");
 
     // Enviando um evento inicial para o cliente
     res.write("event: connected\ndata: Connection established\n\n");
 
     res.on("close", () => {
-      console.log(`Connection closed, clientId '${clientId}'`);
+      this._log.info({ clientId }, "Connection closed");
       this._connections.delete(clientId);
     });
   }
