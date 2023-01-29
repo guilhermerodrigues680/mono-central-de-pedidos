@@ -1,10 +1,12 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App'
-import './index.css'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import { VERSION_INFO, VERSION_INFO_TXT } from "./config/version-info";
 
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+console.info("Version info:", VERSION_INFO_TXT, VERSION_INFO);
+
+ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
-)
+  </React.StrictMode>
+);
