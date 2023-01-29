@@ -7,7 +7,7 @@ async function start() {
 
     configureApiRoutes(ordersService);
 
-    await fastify.listen({ port: 3000 });
+    await fastify.listen({ port: 3000, host: "0.0.0.0" });
     const address = fastify.server.address();
     const port = typeof address === "string" ? address : address?.port;
     fastify.log.info({ port });
