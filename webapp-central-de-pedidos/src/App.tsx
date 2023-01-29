@@ -6,6 +6,8 @@ type Order = {
   amount: number;
 };
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
+
 function App() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [connectionStatus, setConnectionStatus] = useState("Desconectado");
@@ -14,7 +16,7 @@ function App() {
   async function postOrder({ description }: { description: string }) {
     setRequestStatus("Enviando...");
     try {
-      const response = await fetch("http://localhost:3000/api/orders", {
+      const response = await fetch(`${API_BASE_URL}/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -35,9 +37,7 @@ function App() {
   }
 
   useEffect(() => {
-    const eventSource = new EventSource(
-      "http://localhost:3000/api/sse/orders-stream"
-    );
+    const eventSource = new EventSource(`${API_BASE_URL}/sse/orders-stream`);
 
     console.debug(eventSource);
 
