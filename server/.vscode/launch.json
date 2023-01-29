@@ -1,0 +1,35 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Passe o mouse para ver as descrições dos atributos existentes.
+  // Para obter mais informações, visite: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "pwa-node",
+      "request": "launch",
+      "name": "Debug index.ts",
+      "skipFiles": ["<node_internals>/**"],
+      // https://code.visualstudio.com/docs/nodejs/nodejs-debugging#_multi-version-support
+      "runtimeVersion": "16.17.1",
+      "program": "${workspaceFolder}/src/index.ts",
+      "cwd": "${workspaceFolder}",
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "args": ["${workspaceFolder}/src/index.ts"],
+      // https://stackoverflow.com/questions/48027266/winston-logger-nodejs-debug-console-logs-not-showing-in-vscode
+      // "outputCapture": "console",
+      "outputCapture": "std",
+      "env": {
+        // "NODE_ENV": "development"
+        // "NODE_ENV": "production"
+        // "PORT": "3100"
+      }
+    },
+    {
+      "name": "Attach by Process ID",
+      "processId": "${command:PickProcess}",
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "pwa-node"
+    }
+  ]
+}
